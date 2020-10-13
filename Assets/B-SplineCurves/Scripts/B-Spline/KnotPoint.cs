@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
 namespace Chaye
 {
-	public class PathModel
+	public class KnotPoint
 	{
-
+		public uint Index;
+		public float Value;
 	}
 }

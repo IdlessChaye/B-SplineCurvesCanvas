@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
 namespace Chaye
 {
-	public class PathModel
+	public struct PrimaryParam
 	{
-
+		public uint Index;
+		public uint Rank;
 	}
 }
