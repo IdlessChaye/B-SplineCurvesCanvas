@@ -13,7 +13,7 @@ namespace Chaye
 		public Guid Id;
 
 		[SerializeField]
-		private Image _image;
+		private Image _image = default;
 
 		private RectTransform rectTransform;
 		private Action<Vector2> onDrag;

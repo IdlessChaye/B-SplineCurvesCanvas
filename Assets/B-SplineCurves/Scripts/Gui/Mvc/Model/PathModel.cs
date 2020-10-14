@@ -84,7 +84,7 @@ namespace Chaye
 
 		public List<Vector3> GetPathPoints()
 		{
-			const int Segments = 20;
+			const int Segments = 60;
 			var points = BSplineCurves.GetPoints(this.GetPath(), Segments);
 			return points;
 		}

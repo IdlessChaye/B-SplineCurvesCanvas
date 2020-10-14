@@ -12,22 +12,22 @@ namespace Chaye
 		public static CanvasController Instance => _instance;
 
 		[SerializeField]
-		private CanvasView _canvasView;
+		private CanvasView _canvasView = default;
 		[SerializeField]
-		private RectTransform _curveContainer;
+		private RectTransform _curveContainer = default;
 		[SerializeField]
-		private PathView _pathView;
+		private PathView _pathView = default;
 		[SerializeField]
-		private GameObject _controlPointPrefab;
+		private GameObject _controlPointPrefab = default;
 		[SerializeField]
-		private GameObject _knotPointPrefab;
+		private GameObject _knotPointPrefab = default;
 
 		private PathModel _model;
 
-		private ControlPointView _currentEditingControlPoint;
+		private ControlPointView _currentEditingControlPoint = default;
 		private readonly Dictionary<Guid, ControlPointView> _controlPointViews = new Dictionary<Guid, ControlPointView>();
 
-		private KnotPointView _currentEditingKnotPoint;
+		private KnotPointView _currentEditingKnotPoint = default;
 		private readonly Dictionary<Guid, KnotPointView> _knotPointViews = new Dictionary<Guid, KnotPointView>();
 
 		private void Awake()
