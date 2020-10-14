@@ -19,6 +19,8 @@ namespace Chaye
 		private PathView _pathView;
 		[SerializeField]
 		private GameObject _controlPointPrefab;
+		[SerializeField]
+		private GameObject _knotPointPrefab;
 
 		private PathModel _model;
 
@@ -52,13 +54,12 @@ namespace Chaye
 
 			_canvasView.OnClickButtonDelete(() =>
 			{
+				if (IsControlPointSelected() == false)
+					return;
 				DeleteControlPoint(_currentEditingControlPoint.Id);
 			});
 
-			_canvasView.OnClickButtonClear(() =>
-			{
-				Clear();
-			});
+			_canvasView.OnClickButtonClear(Clear);
 		}
 
 		private void LateUpdate()
@@ -66,14 +67,12 @@ namespace Chaye
 			if (_model.IsDirty)
 			{
 				_model.IsDirty = false;
-				//UpdatePath(_model.GetPath());
+				UpdatePath();
 			}
 		}
 
-		private void ChangeRank(uint rank)
-		{
-			Debug.Log("Rank: " + rank.ToString());
-		}
+
+		#region AddControlPoint
 
 		private void AddControlPoint(Vector3 anchore)
 		{
@@ -84,6 +83,8 @@ namespace Chaye
 			var controlPoint = CreateControlPoint(anchore);
 			_model.AddControlPoint(id, controlPoint);
 			view.UpdateControlPoint(controlPoint);
+
+			SelectControlPoint(id);
 		}
 		
 		private ControlPointView InstantiateControlPointView(Guid id)
@@ -128,12 +129,28 @@ namespace Chaye
 			};
 		}
 
-		private bool IsControlPointSelected()
+		#endregion
+
+		#region AddKnotPoint
+
+		public void UpdateKnotVector(int knotCount)
 		{
-			return _currentEditingControlPoint != null;
+			if (knotCount < 2)
+				return;
+
+			_currentEditingKnotPoint = null;
+			ClearKnotPointViews();
+			_model.ClearKnotVector();
+
+			float stepLength = 1.0f / (knotCount - 1);
+			for (int i = 0; i < knotCount; i++)
+			{
+				float value = stepLength * i;
+				AddKnotPoint(value);
+			}
 		}
 
-		public void AddKnotPoint(float value)
+		private void AddKnotPoint(float value)
 		{
 			var id = Guid.NewGuid();
 			var view = InstantiateKnotPointView(id);
@@ -151,23 +168,53 @@ namespace Chaye
 
 		private KnotPoint CreateKnotPoint(float value)
 		{
-			return null;
+			return new KnotPoint
+			{
+				Value = value
+			};
 		}
 
+		#endregion
+
+
+
+
+		private void ChangeRank(uint rank)
+		{
+			Debug.Log("Rank: " + rank.ToString());
+		}
+
+		private bool IsControlPointSelected()
+		{
+			return _currentEditingControlPoint != null;
+		}
 		private void DeleteControlPoint(Guid id)
 		{
-
+			
 		}
 
 		private void Clear()
 		{
-
+			ClearKnotPointViews();
+			ClearControlPointViews();
 		}
 
-		private void UpdatePath(Path path)
+		private void ClearKnotPointViews()
 		{
-			const int Segments = 20;
-			var points = BSplineCurves.GetPoints(path, Segments);
+			_knotPointViews.Clear();
+		}
+
+		private void ClearControlPointViews()
+		{
+			
+		}
+
+
+
+
+		private void UpdatePath()
+		{
+			var points = _model.GetPathPoints();
 			_pathView.UpdatePath(points);
 		}
 	}

@@ -7,5 +7,7 @@ namespace Chaye
 	public class KnotPoint
 	{
 		public float Value;
+
+		public Vector3 anchor;
 	}
 }

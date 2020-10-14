@@ -26,13 +26,33 @@ namespace Chaye
 		readonly Dictionary<Guid, ControlPoint> _controlPoints = new Dictionary<Guid, ControlPoint>();
 		readonly Dictionary<Guid, KnotPoint> _knotPoints = new Dictionary<Guid, KnotPoint>();
 
-		private int controlIndex = 0;
+		private int _controlIndex = 0;
+		private int ControlIndex {
+			get { return _controlIndex++; }
+			set { _controlIndex = value; }
+		}
+
+		private int ControlPointCount => _controlIndex;
 
 		public void AddControlPoint(Guid id, ControlPoint controlPoint)
 		{
 			IsDirty = true;
-			controlPoint.Index = controlIndex++;
+			controlPoint.Index = ControlIndex;
 			_controlPoints.Add(id, controlPoint);
+
+			UpdateKnotVector();
+		}
+
+		private void UpdateKnotVector()
+		{
+			int knotCount = (int)Rank + ControlPointCount + 1;
+			CanvasController.Instance.UpdateKnotVector(knotCount);
+		}
+
+		public void ClearKnotVector()
+		{
+			IsDirty = true;
+			_knotPoints.Clear();
 		}
 
 		public void AddKnotPoint(Guid id, KnotPoint knotPoint)
@@ -42,15 +62,7 @@ namespace Chaye
 		}
 
 
-		public ControlPoint GetControlPoint(Guid id)
-		{
-			ControlPoint controlPoint;
-			if (_controlPoints.TryGetValue(id,out controlPoint))
-			{
-				return controlPoint;
-			}
-			return null;
-		}
+
 
 		public void DragControlPoint(Guid id, Vector2 anchore)
 		{
@@ -59,7 +71,25 @@ namespace Chaye
 			point.Anchor = anchore;
 		}
 
-		public Path GetPath()
+
+		public ControlPoint GetControlPoint(Guid id)
+		{
+			ControlPoint controlPoint;
+			if (_controlPoints.TryGetValue(id, out controlPoint))
+			{
+				return controlPoint;
+			}
+			return null;
+		}
+
+		public List<Vector3> GetPathPoints()
+		{
+			const int Segments = 20;
+			var points = BSplineCurves.GetPoints(this.GetPath(), Segments);
+			return points;
+		}
+
+		private Path GetPath()
 		{
 			return new Path
 			{
