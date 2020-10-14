@@ -69,5 +69,22 @@ namespace Chaye
 			_primaryFuncDict.Add(param, value);
 			return value;
 		}
+
+		public static List<float> GenerateKnotVector(int knotCount)
+		{
+			if (knotCount < 2)
+				return null;
+
+			var result = new List<float>();
+			float stepLength = 1.0f / (knotCount - 1);
+
+			for (int i = 0; i < knotCount; i++)
+			{
+				float value = stepLength * i;
+				result.Add(value);
+			}
+
+			return result;
+		}
 	}
 }

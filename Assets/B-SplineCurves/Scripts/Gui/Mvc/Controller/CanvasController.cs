@@ -142,10 +142,9 @@ namespace Chaye
 			ClearKnotPointViews();
 			_model.ClearKnotVector();
 
-			float stepLength = 1.0f / (knotCount - 1);
-			for (int i = 0; i < knotCount; i++)
+			var knotVector = BSplineCurves.GenerateKnotVector(knotCount);
+			foreach(var value in knotVector)
 			{
-				float value = stepLength * i;
 				AddKnotPoint(value);
 			}
 		}
@@ -176,45 +175,57 @@ namespace Chaye
 
 		#endregion
 
+		private void DeleteControlPoint(Guid id)
+		{
+			Guid? lastId = _model.DeleteControlPoint(id);
+			_controlPointViews.Remove(id);
+			Destroy(_currentEditingControlPoint.gameObject);
 
+			if (lastId.HasValue)
+				SelectControlPoint(lastId.Value);
+		}
 
 
 		private void ChangeRank(uint rank)
 		{
-			Debug.Log("Rank: " + rank.ToString());
+			_model.ChangeRank(rank);
 		}
+
 
 		private bool IsControlPointSelected()
 		{
 			return _currentEditingControlPoint != null;
 		}
-		private void DeleteControlPoint(Guid id)
-		{
-			
-		}
 
 		private void Clear()
 		{
+			_model.Clear();
 			ClearKnotPointViews();
 			ClearControlPointViews();
 		}
 
 		private void ClearKnotPointViews()
 		{
+			_currentEditingKnotPoint = null;
+			foreach (var view in _knotPointViews.Values)
+				if (view != null)
+					Destroy(view.gameObject);
 			_knotPointViews.Clear();
 		}
 
 		private void ClearControlPointViews()
 		{
-			
+			_currentEditingControlPoint = null;
+			foreach (var view in _controlPointViews.Values)
+				if (view != null)
+					Destroy(view.gameObject);
+			_controlPointViews.Clear();
 		}
-
-
-
 
 		private void UpdatePath()
 		{
-			var points = _model.GetPathPoints();
+			const int Segments = 60;
+			var points = BSplineCurves.GetPoints(_model.GetPath(), Segments);
 			_pathView.UpdatePath(points);
 		}
 	}

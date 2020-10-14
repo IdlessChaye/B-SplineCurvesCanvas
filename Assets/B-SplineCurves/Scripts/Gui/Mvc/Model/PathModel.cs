@@ -27,20 +27,50 @@ namespace Chaye
 		readonly Dictionary<Guid, KnotPoint> _knotPoints = new Dictionary<Guid, KnotPoint>();
 
 		private int _controlIndex = 0;
-		private int ControlIndex {
-			get { return _controlIndex++; }
-			set { _controlIndex = value; }
-		}
+		private int ControlPointCount => _controlPoints.Count;
 
-		private int ControlPointCount => _controlIndex;
+		public void ChangeRank(uint newRank)
+		{
+			IsDirty = true;
+			Rank = newRank;
+
+			UpdateKnotVector();
+		}
 
 		public void AddControlPoint(Guid id, ControlPoint controlPoint)
 		{
 			IsDirty = true;
-			controlPoint.Index = ControlIndex;
+			controlPoint.Index = _controlIndex++;
 			_controlPoints.Add(id, controlPoint);
 
 			UpdateKnotVector();
+		}
+
+		public Guid? DeleteControlPoint(Guid id)
+		{
+			IsDirty = true;
+			var point = GetControlPoint(id);
+			if (point == null)
+				return null;
+
+			_controlPoints.Remove(id);
+			Guid? previousId = null;
+			int indexPrevious = point.Index - 1;
+			foreach(var pair in _controlPoints)
+			{
+				if (pair.Value.Index == indexPrevious)
+				{
+					previousId = pair.Key;
+					break;
+				}
+			}
+
+			var points = _controlPoints.Values.OrderBy(x => x.Index).ToList();
+			for (_controlIndex = 0; _controlIndex < ControlPointCount; _controlIndex++)
+				points[_controlIndex].Index = _controlIndex;
+
+			UpdateKnotVector();
+			return previousId;
 		}
 
 		private void UpdateKnotVector()
@@ -82,14 +112,7 @@ namespace Chaye
 			return null;
 		}
 
-		public List<Vector3> GetPathPoints()
-		{
-			const int Segments = 60;
-			var points = BSplineCurves.GetPoints(this.GetPath(), Segments);
-			return points;
-		}
-
-		private Path GetPath()
+		public Path GetPath()
 		{
 			return new Path
 			{
@@ -97,6 +120,14 @@ namespace Chaye
 				ControlPoints = _controlPoints.Values.OrderBy(x => x.Index).ToList(),
 				KnotVector = _knotPoints.Values.OrderBy(x => x.Value).ToList()
 			};
+		}
+
+		public void Clear()
+		{
+			IsDirty = true;
+			_controlPoints.Clear();
+			_knotPoints.Clear();
+			_controlIndex = 0;
 		}
 	}
 }
