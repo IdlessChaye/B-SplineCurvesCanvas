@@ -1,18 +1,61 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
-public class ControlPointView : MonoBehaviour
+namespace Chaye
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+	public class ControlPointView : MonoBehaviour, IPointerDownHandler, IDragHandler
+	{
+		[HideInInspector]
+		public Guid Id;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+		[SerializeField]
+		private Image _image;
+
+		private RectTransform rectTransform;
+		private Action<Vector2> onDrag;
+		private Action onPointerDown;
+
+		void Awake()
+		{
+			rectTransform = GetComponent<RectTransform>();
+		}
+
+		public void SetSelected(bool isSelected)
+		{
+			var color = isSelected ? Color.yellow : Color.blue;
+			_image.color = color;
+		}
+
+		public void UpdateControlPoint(ControlPoint point)
+		{
+			rectTransform.anchoredPosition3D = point.Anchor;
+		}
+
+		public void OnPointerDown(Action<Guid> callback)
+		{
+			onPointerDown = () => callback(Id);
+		}
+
+		public void OnDrag(Action<Guid, Vector2> callback)
+		{
+			onDrag = position => callback(Id, position);
+		}
+
+		void IPointerDownHandler.OnPointerDown(PointerEventData e)
+		{
+			e.Use();
+			onPointerDown?.Invoke();
+		}
+
+		void IDragHandler.OnDrag(PointerEventData e)
+		{
+			e.Use();
+			onDrag?.Invoke(e.position);
+		}
+
+	}
 }

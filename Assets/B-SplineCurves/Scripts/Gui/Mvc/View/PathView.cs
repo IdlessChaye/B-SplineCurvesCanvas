@@ -7,7 +7,7 @@ namespace Chaye
 	[RequireComponent(typeof(LineRenderer))]
 	public class PathView : MonoBehaviour
 	{
-		private LineRenderer _lineRenderer = default;
+		private LineRenderer _lineRenderer;
 
 		private void Awake()
 		{

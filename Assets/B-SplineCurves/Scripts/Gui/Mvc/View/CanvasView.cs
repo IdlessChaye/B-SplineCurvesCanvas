@@ -33,6 +33,8 @@ namespace Chaye
 			buttonDelete.onClick.AddListener(callback);
 		}
 
+
+
 		public void OnPointerDown(Action<Vector2> callback)
 		{
 			onPointerDown = callback;

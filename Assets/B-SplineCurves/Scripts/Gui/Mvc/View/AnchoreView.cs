@@ -4,9 +4,8 @@ using UnityEngine;
 
 namespace Chaye
 {
-	public class ControlPoint
+	public class AnchoreView : MonoBehaviour
 	{
-		public int Index;
-		public Vector3 Anchor;
+		
 	}
 }

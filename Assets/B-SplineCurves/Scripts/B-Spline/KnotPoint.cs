@@ -6,7 +6,6 @@ namespace Chaye
 {
 	public class KnotPoint
 	{
-		public uint Index;
 		public float Value;
 	}
 }
