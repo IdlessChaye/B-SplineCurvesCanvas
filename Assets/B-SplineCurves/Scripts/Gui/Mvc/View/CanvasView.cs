@@ -13,6 +13,7 @@ namespace Chaye
 		[SerializeField] InputField inputRank = default;
 		[SerializeField] Button buttonDelete = default;
 		[SerializeField] Button buttonClear = default;
+		[SerializeField] Button buttonFinish = default;
 		[SerializeField] Toggle toggleShowControlPoint = default;
 		[SerializeField] Toggle toggleShowKnotPoint = default;
 
@@ -33,6 +34,11 @@ namespace Chaye
 		public void OnClickButtonDelete(UnityAction callback)
 		{
 			buttonDelete.onClick.AddListener(callback);
+		}
+
+		public void OnClickButtonFinish(UnityAction callback)
+		{
+			buttonFinish.onClick.AddListener(callback);
 		}
 
 		public void OnClickToggleShowControlPoint(UnityAction<bool> callback)

@@ -16,7 +16,7 @@ namespace Chaye
 		[SerializeField]
 		private RectTransform _curveContainer = default;
 		[SerializeField]
-		private PathView _pathView = default;
+		private GameObject _pathPrefab = default;
 		[SerializeField]
 		private GameObject _controlPointPrefab = default;
 		[SerializeField]
@@ -32,13 +32,14 @@ namespace Chaye
 		private KnotPointView _currentEditingKnotPoint = default;
 		private readonly Dictionary<Guid, KnotPointView> _knotPointViews = new Dictionary<Guid, KnotPointView>();
 
-		
+		private PathView _currentPathView;
 
 		private void Awake()
 		{
 			_instance = this;
 			BSplineCurves.Segments = 100;
 			_model = new PathModel();
+			_currentPathView = InstantiatePathView();
 		}
 
 		private void Start()
@@ -63,6 +64,8 @@ namespace Chaye
 			_canvasView.OnClickButtonDelete(() => DeleteControlPointCallback());
 
 			_canvasView.OnClickButtonClear(Clear);
+
+			_canvasView.OnClickButtonFinish(Finish);
 
 			_canvasView.OnClickToggleShowControlPoint((isOk) =>
 			{
@@ -306,10 +309,23 @@ namespace Chaye
 			_controlPointViews.Clear();
 		}
 
+		private void Finish()
+		{
+			_currentPathView = InstantiatePathView();
+			Clear();
+		}
+
+		private PathView InstantiatePathView()
+		{
+			var go = Instantiate(_pathPrefab, _curveContainer);
+			var view = go.GetComponent<PathView>();
+			return view;
+		}
+
 		private void UpdatePath()
 		{
 			var points = BSplineCurves.GetPoints(_model.GetPath());
-			_pathView.UpdatePath(points);
+			_currentPathView.UpdatePath(points);
 		}
 	}
 }
