@@ -100,6 +100,12 @@ namespace Chaye
 			_knotPoints.Add(id, knotPoint);
 		}
 
+		public void SetKnotPointAnchor(Guid id, KnotPoint knotPoint)
+		{
+			if (_knotPoints.TryGetValue(id, out knotPoint))
+				knotPoint.Anchor = BSplineCurves.GetPoint(GetPath(), knotPoint.Value);
+		}
+
 
 
 
@@ -107,9 +113,32 @@ namespace Chaye
 		{
 			IsDirty = true;
 			var point = GetControlPoint(id);
+			if (point == null)
+				return;
 			point.Anchor = anchore;
 		}
 
+		public void DragKnotPoint(Guid id, Vector2 anchore)
+		{
+			IsDirty = true;
+			var point = GetKnotPoint(id);
+			if (point == null)
+				return;
+			//point.Anchor = anchore;
+			const float speed = 0.5f;
+			var mouseMove = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
+			var moveLength = Vector2.Dot(mouseMove, Vector2.up + Vector2.right);
+			if (moveLength > 0)
+			{
+				point.Value += Time.deltaTime * speed;
+			}
+			else
+			{
+				point.Value -= Time.deltaTime * speed;
+			}
+			point.Value = Mathf.Clamp(point.Value, 0.0f, 1.0f);
+			point.Anchor = BSplineCurves.GetPoint(GetPath(), point.Value);
+		}
 
 		public ControlPoint GetControlPoint(Guid id)
 		{
@@ -117,6 +146,16 @@ namespace Chaye
 			if (_controlPoints.TryGetValue(id, out controlPoint))
 			{
 				return controlPoint;
+			}
+			return null;
+		}
+
+		public KnotPoint GetKnotPoint(Guid id)
+		{
+			KnotPoint knotPoint;
+			if (_knotPoints.TryGetValue(id, out knotPoint))
+			{
+				return knotPoint;
 			}
 			return null;
 		}

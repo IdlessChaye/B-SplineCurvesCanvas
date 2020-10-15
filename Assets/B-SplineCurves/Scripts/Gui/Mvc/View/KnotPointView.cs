@@ -26,13 +26,13 @@ namespace Chaye
 
 		public void SetSelected(bool isSelected)
 		{
-			var color = isSelected ? Color.red : Color.cyan;
+			var color = isSelected ? Color.yellow : Color.cyan;
 			_image.color = color;
 		}
 
 		public void UpdateKnotPoint(KnotPoint point)
 		{
-			rectTransform.anchoredPosition3D = point.anchor;
+			rectTransform.anchoredPosition3D = point.Anchor;
 		}
 
 		public void OnPointerDown(Action<Guid> callback)

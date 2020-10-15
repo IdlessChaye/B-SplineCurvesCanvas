@@ -8,6 +8,6 @@ namespace Chaye
 	{
 		public float Value;
 
-		public Vector3 anchor;
+		public Vector3 Anchor;
 	}
 }

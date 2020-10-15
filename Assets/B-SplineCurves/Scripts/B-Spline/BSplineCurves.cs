@@ -6,16 +6,39 @@ namespace Chaye
 {
 	public static class BSplineCurves
 	{
+		public static int Segments = 100;
+
 		private static Dictionary<PrimaryParam, float> _primaryFuncDict = new Dictionary<PrimaryParam, float>();
 
 		private static List<KnotPoint> _knotVector = default;
 
-		public static List<Vector3> GetPoints(Path path, int segments)
+		public static Vector3 GetPoint(Path path, float u)
 		{
-			segments = Mathf.Max(segments, 1);
+			var point = Vector3.zero;
 
+			uint rank = path.Rank;
+			_knotVector = path.KnotVector;
+			if (_knotVector.Count == 0 || _knotVector.Count <= rank)
+				return point;
+
+			//float uStart = _knotVector[(int)rank].Value;
+			//float uEnd = _knotVector[_knotVector.Count - (int)rank - 1].Value;
+			if (u >= 0 && u <= 1)
+			{
+				_primaryFuncDict.Clear();
+				for (int i = 0; i < path.ControlPoints.Count; i++)
+				{
+					point += GetPrimaryFuncValue((uint)i, rank, u) * path.ControlPoints[i].Anchor;
+				}
+			}
+
+			return point;
+		}
+
+		public static List<Vector3> GetPoints(Path path)
+		{
 			var points = new List<Vector3>();
-			float floatSegments = segments;
+			float floatSegments = Segments;
 			uint rank = path.Rank;
 			_knotVector = path.KnotVector;
 			if (_knotVector.Count == 0 || _knotVector.Count <= rank)

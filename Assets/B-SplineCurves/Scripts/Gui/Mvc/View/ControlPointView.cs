@@ -26,7 +26,7 @@ namespace Chaye
 
 		public void SetSelected(bool isSelected)
 		{
-			var color = isSelected ? Color.yellow : Color.blue;
+			var color = isSelected ? Color.red : Color.blue;
 			_image.color = color;
 		}
 

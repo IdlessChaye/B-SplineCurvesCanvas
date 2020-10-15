@@ -32,19 +32,30 @@ namespace Chaye
 		private KnotPointView _currentEditingKnotPoint = default;
 		private readonly Dictionary<Guid, KnotPointView> _knotPointViews = new Dictionary<Guid, KnotPointView>();
 
-		private const int Segments = 100;
+		
 
 		private void Awake()
 		{
 			_instance = this;
+			BSplineCurves.Segments = 100;
 			_model = new PathModel();
 		}
 
 		private void Start()
 		{
+			Action deleteControlPointCallback = () =>
+			{
+				if (IsControlPointSelected() == false)
+					return;
+				DeleteControlPoint(_currentEditingControlPoint.Id);
+			};
+
 			_canvasView.OnPointerDown(position =>
 			{
-				AddControlPoint(position);
+				if (Input.GetMouseButton(0))
+					AddControlPoint(position);
+				else
+					deleteControlPointCallback();
 			});
 
 			_canvasView.OnChangedInputFieldRank((rankStr) =>
@@ -56,12 +67,7 @@ namespace Chaye
 				}
 			});
 
-			_canvasView.OnClickButtonDelete(() =>
-			{
-				if (IsControlPointSelected() == false)
-					return;
-				DeleteControlPoint(_currentEditingControlPoint.Id);
-			});
+			_canvasView.OnClickButtonDelete(() => deleteControlPointCallback());
 
 			_canvasView.OnClickButtonClear(Clear);
 		}
@@ -147,26 +153,68 @@ namespace Chaye
 			_model.ClearKnotVector();
 
 			var knotVector = BSplineCurves.GenerateKnotVector(knotCount);
+
+			Dictionary<Guid, KnotPoint> knotDict = new Dictionary<Guid, KnotPoint>();
 			foreach(var value in knotVector)
 			{
-				AddKnotPoint(value);
+				var id = Guid.NewGuid();
+				var knotPoint = CreateKnotPoint(value);
+				_model.AddKnotPoint(id, knotPoint);
+
+				knotDict.Add(id, knotPoint);
+			}
+
+			foreach(var pair in knotDict)
+			{
+				var id = pair.Key;
+				var knotPoint = pair.Value;
+				AddKnotPoint(id, knotPoint);
 			}
 		}
 
-		private void AddKnotPoint(float value)
+		private void AddKnotPoint(Guid id, KnotPoint knotPoint)
 		{
-			var id = Guid.NewGuid();
+			_model.SetKnotPointAnchor(id, knotPoint);
+
 			var view = InstantiateKnotPointView(id);
+			view.UpdateKnotPoint(knotPoint);
 			_knotPointViews.Add(id, view);
 
-			var knotPoint = CreateKnotPoint(value);
-			_model.AddKnotPoint(id, knotPoint);
-			//view.KnotPoint = knotPoint;
+			SelectKnotPoint(id);
 		}
 
 		private KnotPointView InstantiateKnotPointView(Guid id)
 		{
-			return null;
+			var go = Instantiate(_knotPointPrefab, _curveContainer);
+			var view = go.GetComponent<KnotPointView>();
+			view.Id = id;
+			view.OnPointerDown(SelectKnotPoint);
+			view.OnDrag(DragKnotPoint);
+
+			return view;
+		}
+
+		private void SelectKnotPoint(Guid id)
+		{
+			var point = _model.GetKnotPoint(id);
+			if (point == null)
+			{
+				return;
+			}
+
+			foreach (var view in _knotPointViews.Values)
+			{
+				view.SetSelected(view.Id == id);
+			}
+
+			_currentEditingKnotPoint = _knotPointViews[id];
+		}
+
+		private void DragKnotPoint(Guid id, Vector2 position)
+		{
+			_model.DragKnotPoint(id, position);
+			var knotPoint = _model.GetKnotPoint(id);
+			_knotPointViews[id].UpdateKnotPoint(knotPoint);
 		}
 
 		private KnotPoint CreateKnotPoint(float value)
@@ -231,7 +279,7 @@ namespace Chaye
 
 		private void UpdatePath()
 		{
-			var points = BSplineCurves.GetPoints(_model.GetPath(), Segments);
+			var points = BSplineCurves.GetPoints(_model.GetPath());
 			_pathView.UpdatePath(points);
 		}
 	}
