@@ -43,19 +43,12 @@ namespace Chaye
 
 		private void Start()
 		{
-			Action deleteControlPointCallback = () =>
-			{
-				if (IsControlPointSelected() == false)
-					return;
-				DeleteControlPoint(_currentEditingControlPoint.Id);
-			};
-
 			_canvasView.OnPointerDown(position =>
 			{
 				if (Input.GetMouseButton(0))
 					AddControlPoint(position);
 				else
-					deleteControlPointCallback();
+					DeleteControlPointCallback();
 			});
 
 			_canvasView.OnChangedInputFieldRank((rankStr) =>
@@ -67,9 +60,25 @@ namespace Chaye
 				}
 			});
 
-			_canvasView.OnClickButtonDelete(() => deleteControlPointCallback());
+			_canvasView.OnClickButtonDelete(() => DeleteControlPointCallback());
 
 			_canvasView.OnClickButtonClear(Clear);
+
+			_canvasView.OnClickToggleShowControlPoint((isOk) =>
+			{
+				foreach(var view in _controlPointViews.Values)
+				{
+					Utilities.TrySetActive(view.gameObject, isOk);
+				}
+			});
+
+			_canvasView.OnClickToggleShowKnotPoint((isOk) =>
+			{
+				foreach (var view in _knotPointViews.Values)
+				{
+					Utilities.TrySetActive(view.gameObject, isOk);
+				}
+			});
 		}
 
 		private void LateUpdate()
@@ -95,6 +104,7 @@ namespace Chaye
 			view.UpdateControlPoint(controlPoint);
 
 			SelectControlPoint(id);
+			_canvasView.ShowPoints(true);
 		}
 		
 		private ControlPointView InstantiateControlPointView(Guid id)
@@ -129,6 +139,12 @@ namespace Chaye
 			_model.DragControlPoint(id, position);
 			var controlPoint = _model.GetControlPoint(id);
 			_controlPointViews[id].UpdateControlPoint(controlPoint);
+			foreach(var pair in _knotPointViews)
+			{
+				var guid = pair.Key;
+				_model.SetKnotPointAnchor(guid);
+				pair.Value.UpdateKnotPoint(_model.GetKnotPoint(guid));
+			}
 		}
 
 		private ControlPoint CreateControlPoint(Vector3 position)
@@ -174,7 +190,7 @@ namespace Chaye
 
 		private void AddKnotPoint(Guid id, KnotPoint knotPoint)
 		{
-			_model.SetKnotPointAnchor(id, knotPoint);
+			_model.SetKnotPointAnchor(id);
 
 			var view = InstantiateKnotPointView(id);
 			view.UpdateKnotPoint(knotPoint);
@@ -213,8 +229,12 @@ namespace Chaye
 		private void DragKnotPoint(Guid id, Vector2 position)
 		{
 			_model.DragKnotPoint(id, position);
-			var knotPoint = _model.GetKnotPoint(id);
-			_knotPointViews[id].UpdateKnotPoint(knotPoint);
+			foreach (var pair in _knotPointViews)
+			{
+				var guid = pair.Key;
+				_model.SetKnotPointAnchor(guid);
+				pair.Value.UpdateKnotPoint(_model.GetKnotPoint(guid));
+			}
 		}
 
 		private KnotPoint CreateKnotPoint(float value)
@@ -227,6 +247,14 @@ namespace Chaye
 
 		#endregion
 
+
+		private void DeleteControlPointCallback()
+		{
+			if (IsControlPointSelected() == false)
+				return;
+			DeleteControlPoint(_currentEditingControlPoint.Id);
+		}
+
 		private void DeleteControlPoint(Guid id)
 		{
 			Guid? lastId = _model.DeleteControlPoint(id);
@@ -237,6 +265,7 @@ namespace Chaye
 				SelectControlPoint(lastId.Value);
 
 			ChangeRank(_model.Rank);
+			_canvasView.ShowPoints(true);
 		}
 
 		private void ChangeRank(uint rank)

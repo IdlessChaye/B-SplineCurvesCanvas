@@ -100,8 +100,9 @@ namespace Chaye
 			_knotPoints.Add(id, knotPoint);
 		}
 
-		public void SetKnotPointAnchor(Guid id, KnotPoint knotPoint)
+		public void SetKnotPointAnchor(Guid id)
 		{
+			KnotPoint knotPoint;
 			if (_knotPoints.TryGetValue(id, out knotPoint))
 				knotPoint.Anchor = BSplineCurves.GetPoint(GetPath(), knotPoint.Value);
 		}

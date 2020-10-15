@@ -13,6 +13,8 @@ namespace Chaye
 		[SerializeField] InputField inputRank = default;
 		[SerializeField] Button buttonDelete = default;
 		[SerializeField] Button buttonClear = default;
+		[SerializeField] Toggle toggleShowControlPoint = default;
+		[SerializeField] Toggle toggleShowKnotPoint = default;
 
 		Action<Vector2> onPointerDown;
 		Action<Vector2> onDrag;
@@ -31,6 +33,16 @@ namespace Chaye
 		public void OnClickButtonDelete(UnityAction callback)
 		{
 			buttonDelete.onClick.AddListener(callback);
+		}
+
+		public void OnClickToggleShowControlPoint(UnityAction<bool> callback)
+		{
+			toggleShowControlPoint.onValueChanged.AddListener(callback);
+		}
+
+		public void OnClickToggleShowKnotPoint(UnityAction<bool> callback)
+		{
+			toggleShowKnotPoint.onValueChanged.AddListener(callback);
 		}
 
 
@@ -63,6 +75,12 @@ namespace Chaye
 		void IEndDragHandler.OnEndDrag(PointerEventData e)
 		{
 			onEndDrag?.Invoke(e.position);
+		}
+
+		public void ShowPoints(bool isShow)
+		{
+			toggleShowControlPoint.isOn = isShow;
+			toggleShowKnotPoint.isOn = isShow;
 		}
 
 	}
