@@ -13,5 +13,13 @@ namespace Chaye
 			if (go.activeSelf != isActive)
 				go.SetActive(isActive);
 		}
+
+		public static bool isFloatEqual(float a, float b)
+		{
+			const float eps = 0.000001f;
+			if (Mathf.Abs(a - b) < eps)
+				return true;
+			return false;
+		}
 	}
 }

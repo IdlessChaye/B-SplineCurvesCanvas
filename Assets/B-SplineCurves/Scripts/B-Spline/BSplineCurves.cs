@@ -21,8 +21,6 @@ namespace Chaye
 			if (_knotVector.Count == 0 || _knotVector.Count <= rank)
 				return point;
 
-			//float uStart = _knotVector[(int)rank].Value;
-			//float uEnd = _knotVector[_knotVector.Count - (int)rank - 1].Value;
 			if (u >= 0 && u <= 1)
 			{
 				_primaryFuncDict.Clear();
@@ -71,6 +69,7 @@ namespace Chaye
 				return value;
 			}
 
+			value = 0f;
 			if (rank == 0)
 			{
 				float u_i = _knotVector[(int)i].Value;
@@ -87,10 +86,18 @@ namespace Chaye
 				float u_ip = _knotVector[(int)(i+rank)].Value;
 				float u_ip_1 = _knotVector[(int)(i+rank+1)].Value;
 
-				float leftWeight = (u - u_i) / (u_ip - u_i);
-				float rightWeight = (u_ip_1 - u) / (u_ip_1 - u_i_1);
-
-				value = leftWeight * GetPrimaryFuncValue(i, rank - 1, u) + rightWeight * GetPrimaryFuncValue(i + 1, rank - 1, u);
+				float leftWeight = 0;
+				if (Utilities.isFloatEqual(u_ip, u_i) == false)
+				{ 
+					leftWeight = (u - u_i) / (u_ip - u_i);
+					value += leftWeight * GetPrimaryFuncValue(i, rank - 1, u);
+				}
+				float rightWeight = 0;
+				if (Utilities.isFloatEqual(u_ip_1, u_i_1) == false)
+				{ 
+					rightWeight = (u_ip_1 - u) / (u_ip_1 - u_i_1);
+					value += rightWeight * GetPrimaryFuncValue(i + 1, rank - 1, u);
+				}
 			}
 
 			_primaryFuncDict.Add(param, value);

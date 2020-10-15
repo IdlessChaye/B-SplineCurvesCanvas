@@ -138,6 +138,7 @@ namespace Chaye
 				point.Value -= Time.deltaTime * speed;
 			}
 			point.Value = Mathf.Clamp(point.Value, 0.0f, 1.0f);
+			Debug.Log(point.Value);
 			point.Anchor = BSplineCurves.GetPoint(GetPath(), point.Value);
 		}
 

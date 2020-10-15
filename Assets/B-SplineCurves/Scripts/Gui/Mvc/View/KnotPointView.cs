@@ -19,14 +19,17 @@ namespace Chaye
 		private Action<Vector2> onDrag;
 		private Action onPointerDown;
 
+		private Color orange;
+
 		void Awake()
 		{
 			rectTransform = GetComponent<RectTransform>();
+			orange = new Color(231.0f / 255, 101.0f / 255, 26.0f / 255);
 		}
 
 		public void SetSelected(bool isSelected)
 		{
-			var color = isSelected ? Color.yellow : Color.cyan;
+			var color = isSelected ? orange : Color.cyan;
 			_image.color = color;
 		}
 
