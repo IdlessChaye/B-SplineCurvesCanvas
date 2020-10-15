@@ -18,12 +18,16 @@ namespace Chaye
 			float floatSegments = segments;
 			uint rank = path.Rank;
 			_knotVector = path.KnotVector;
+			if (_knotVector.Count == 0 || _knotVector.Count <= rank)
+				return points;
 
-			for (int j = 0; j < segments; j++)
+			int jStart = (int)(_knotVector[(int)rank].Value * floatSegments);
+			int jEnd = (int)(_knotVector[_knotVector.Count - (int)rank - 1].Value * floatSegments);
+			for (int j = jStart; j <= jEnd; j++)
 			{
 				float u = j / floatSegments;
-				_primaryFuncDict.Clear();
 				Vector3 point = Vector3.zero;
+				_primaryFuncDict.Clear();
 				for (int i = 0; i < path.ControlPoints.Count; i++)
 				{
 					point += GetPrimaryFuncValue((uint)i, rank, u) * path.ControlPoints[i].Anchor;
@@ -36,9 +40,9 @@ namespace Chaye
 
 		private static float GetPrimaryFuncValue(uint i, uint rank, float u)
 		{
-			float value;
 			var param = new PrimaryParam { Index = i, Rank = rank };
 
+			float value;
 			if (_primaryFuncDict.TryGetValue(param, out value))
 			{
 				return value;
@@ -83,7 +87,7 @@ namespace Chaye
 				float value = stepLength * i;
 				result.Add(value);
 			}
-
+			
 			return result;
 		}
 	}

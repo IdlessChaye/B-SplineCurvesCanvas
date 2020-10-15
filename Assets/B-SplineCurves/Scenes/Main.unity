@@ -552,7 +552,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: '3
+  m_Text: '0
 
 '
 --- !u!222 &569960030
@@ -701,6 +701,7 @@ MonoBehaviour:
     type: 3}
   _knotPointPrefab: {fileID: 9216309147736476149, guid: 1f28de4983b80e2408ddadd8813b4c38,
     type: 3}
+  _input: {fileID: 1964747843}
 --- !u!114 &633996748
 MonoBehaviour:
   m_ObjectHideFlags: 0

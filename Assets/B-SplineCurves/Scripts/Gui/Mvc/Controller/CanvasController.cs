@@ -21,6 +21,8 @@ namespace Chaye
 		private GameObject _controlPointPrefab = default;
 		[SerializeField]
 		private GameObject _knotPointPrefab = default;
+		[SerializeField]
+		private UnityEngine.UI.InputField _input = default;
 
 		private PathModel _model;
 
@@ -29,6 +31,8 @@ namespace Chaye
 
 		private KnotPointView _currentEditingKnotPoint = default;
 		private readonly Dictionary<Guid, KnotPointView> _knotPointViews = new Dictionary<Guid, KnotPointView>();
+
+		private const int Segments = 100;
 
 		private void Awake()
 		{
@@ -43,7 +47,7 @@ namespace Chaye
 				AddControlPoint(position);
 			});
 
-			_canvasView.OnChangedInputFieldRank(rankStr =>
+			_canvasView.OnChangedInputFieldRank((rankStr) =>
 			{
 				uint rank;
 				if (uint.TryParse(rankStr, out rank))
@@ -183,12 +187,15 @@ namespace Chaye
 
 			if (lastId.HasValue)
 				SelectControlPoint(lastId.Value);
-		}
 
+			ChangeRank(_model.Rank);
+		}
 
 		private void ChangeRank(uint rank)
 		{
-			_model.ChangeRank(rank);
+			uint newRank = _model.ClampRank(rank);
+			_input.text = newRank.ToString();
+			_model.ChangeRank(newRank);
 		}
 
 
@@ -224,7 +231,6 @@ namespace Chaye
 
 		private void UpdatePath()
 		{
-			const int Segments = 60;
 			var points = BSplineCurves.GetPoints(_model.GetPath(), Segments);
 			_pathView.UpdatePath(points);
 		}

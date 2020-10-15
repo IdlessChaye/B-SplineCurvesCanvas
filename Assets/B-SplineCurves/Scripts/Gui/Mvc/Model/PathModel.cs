@@ -10,7 +10,7 @@ namespace Chaye
 	{
 		public bool IsDirty { get; set; }
 
-		private uint _rank = 3;
+		private uint _rank = 0;
 		public uint Rank {
 			get
 			{
@@ -28,6 +28,15 @@ namespace Chaye
 
 		private int _controlIndex = 0;
 		private int ControlPointCount => _controlPoints.Count;
+
+		public uint ClampRank(uint rank)
+		{
+			if (ControlPointCount == 0)
+				rank = 0;
+			else if (rank > ControlPointCount - 1)
+				rank = (uint)ControlPointCount - 1;
+			return rank;
+		}
 
 		public void ChangeRank(uint newRank)
 		{
@@ -128,6 +137,7 @@ namespace Chaye
 			_controlPoints.Clear();
 			_knotPoints.Clear();
 			_controlIndex = 0;
+			UpdateKnotVector();
 		}
 	}
 }
