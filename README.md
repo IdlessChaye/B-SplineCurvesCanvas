@@ -10,10 +10,14 @@
 
 ## Demo
 
-- Show Points
+- Illustrator: EKiruourike
 
-![BSplineCurves](img/BSplineCurves.png)
+![EKiruourike](img/EKiruourike.png)
 
-- Line
+- Edit points
 
-![Chaye](img/Chaye.png)
+![Points](img/Points.png)
+
+- CG! (drawing is fun)
+
+![CG](img/CG.png)
