@@ -21,6 +21,9 @@ namespace Chaye
 		Action<Vector2> onDrag;
 		Action<Vector2> onEndDrag;
 
+		bool _isShowControlPoints = true;
+		bool _isShowKnotPoints = true;
+
 		public void OnChangedInputFieldRank(UnityAction<string> callback)
 		{
 			inputRank.onValueChanged.AddListener(callback);
@@ -87,10 +90,22 @@ namespace Chaye
 			onEndDrag?.Invoke(e.position);
 		}
 
-		public void ShowPoints(bool isShow)
+		public void UpdatePoints()
 		{
-			toggleShowControlPoint.isOn = isShow;
-			toggleShowKnotPoint.isOn = isShow;
+			toggleShowControlPoint.isOn = _isShowControlPoints;
+			toggleShowControlPoint.onValueChanged.Invoke(_isShowControlPoints);
+			toggleShowKnotPoint.isOn = _isShowKnotPoints;
+			toggleShowKnotPoint.onValueChanged.Invoke(_isShowKnotPoints);
+		}
+
+		public void SetShowControlPoints(bool isShow)
+		{
+			_isShowControlPoints = isShow;
+		}
+
+		public void SetShowKnotPoints(bool isShow)
+		{
+			_isShowKnotPoints = isShow;
 		}
 
 	}

@@ -57,7 +57,7 @@ namespace Chaye
 			{
 				_model.IsUniform = isOk;
 				_model.UpdateKnotVector();
-				_canvasView.ShowPoints(true);
+				_canvasView.UpdatePoints();
 			});
 
 			_canvasView.OnChangedInputFieldRank((rankStr) =>
@@ -66,6 +66,7 @@ namespace Chaye
 				if (uint.TryParse(rankStr, out rank))
 				{
 					ChangeRank(rank);
+					_canvasView.UpdatePoints();
 				}
 			});
 
@@ -77,7 +78,8 @@ namespace Chaye
 
 			_canvasView.OnClickToggleShowControlPoint((isOk) =>
 			{
-				foreach(var view in _controlPointViews.Values)
+				_canvasView.SetShowControlPoints(isOk);
+				foreach (var view in _controlPointViews.Values)
 				{
 					Utilities.TrySetActive(view.gameObject, isOk);
 				}
@@ -85,6 +87,7 @@ namespace Chaye
 
 			_canvasView.OnClickToggleShowKnotPoint((isOk) =>
 			{
+				_canvasView.SetShowKnotPoints(isOk);
 				foreach (var view in _knotPointViews.Values)
 				{
 					Utilities.TrySetActive(view.gameObject, isOk);
@@ -115,7 +118,7 @@ namespace Chaye
 			view.UpdateControlPoint(controlPoint);
 
 			SelectControlPoint(id);
-			_canvasView.ShowPoints(true);
+			_canvasView.UpdatePoints();
 		}
 		
 		private ControlPointView InstantiateControlPointView(Guid id)
@@ -276,7 +279,7 @@ namespace Chaye
 				SelectControlPoint(lastId.Value);
 
 			ChangeRank(_model.Rank);
-			_canvasView.ShowPoints(true);
+			_canvasView.UpdatePoints();
 		}
 
 		private void ChangeRank(uint rank)
@@ -304,7 +307,7 @@ namespace Chaye
 			_model.Clear();
 			ClearKnotPointViews();
 			ClearControlPointViews();
-			_canvasView.ShowPoints(true);
+			_canvasView.UpdatePoints();
 		}
 
 		private void ClearKnotPointViews()
