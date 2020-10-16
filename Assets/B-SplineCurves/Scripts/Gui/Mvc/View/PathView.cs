@@ -19,6 +19,13 @@ namespace Chaye
 			_lineRenderer.positionCount = points.Count;
 			_lineRenderer.SetPositions(points.ToArray());
 		}
+
+		public void SetColor(Color color)
+		{
+			_lineRenderer.startColor = color;
+			_lineRenderer.endColor = color;
+		}
+
 	}
 }
 

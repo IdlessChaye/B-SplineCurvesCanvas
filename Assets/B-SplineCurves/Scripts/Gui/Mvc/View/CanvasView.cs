@@ -16,6 +16,8 @@ namespace Chaye
 		[SerializeField] Button buttonFinish = default;
 		[SerializeField] Toggle toggleShowControlPoint = default;
 		[SerializeField] Toggle toggleShowKnotPoint = default;
+		[SerializeField] Button buttonColorPanel = default;
+		[SerializeField] GameObject colorPanel = default;
 
 		Action<Vector2> onPointerDown;
 		Action<Vector2> onDrag;
@@ -23,6 +25,23 @@ namespace Chaye
 
 		bool _isShowControlPoints = true;
 		bool _isShowKnotPoints = true;
+
+		bool _isShowColorPanel = false;
+
+		ColorManager _colorManager;
+
+
+		private void Start()
+		{
+			_colorManager = colorPanel.GetComponent<ColorManager>();
+
+			Utilities.TrySetActive(colorPanel, _isShowColorPanel);
+			buttonColorPanel.onClick.AddListener(() =>
+			{
+				_isShowColorPanel = !_isShowColorPanel;
+				Utilities.TrySetActive(colorPanel, _isShowColorPanel);
+			});
+		}
 
 		public void OnChangedInputFieldRank(UnityAction<string> callback)
 		{
@@ -58,6 +77,12 @@ namespace Chaye
 		{
 			toggleIsUniform.onValueChanged.AddListener(callback);
 		}
+
+		public void OnColorChanged(UnityAction<Color> callback)
+		{
+			_colorManager.OnColorChanged(callback);
+		}
+
 
 
 		public void OnPointerDown(Action<Vector2> callback)

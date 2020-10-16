@@ -33,6 +33,7 @@ namespace Chaye
 		private readonly Dictionary<Guid, KnotPointView> _knotPointViews = new Dictionary<Guid, KnotPointView>();
 
 		private PathView _currentPathView;
+		private Color _currentPathColor = Color.black;
 
 		private void Awake()
 		{
@@ -92,6 +93,12 @@ namespace Chaye
 				{
 					Utilities.TrySetActive(view.gameObject, isOk);
 				}
+			});
+
+			_canvasView.OnColorChanged(color =>
+			{
+				_currentPathColor = color;
+				_currentPathView.SetColor(_currentPathColor);
 			});
 		}
 
@@ -338,6 +345,7 @@ namespace Chaye
 		{
 			var go = Instantiate(_pathPrefab, _curveContainer);
 			var view = go.GetComponent<PathView>();
+			view.SetColor(_currentPathColor);
 			return view;
 		}
 
@@ -345,6 +353,11 @@ namespace Chaye
 		{
 			var points = BSplineCurves.GetPoints(_model.GetPath());
 			_currentPathView.UpdatePath(points);
+		}
+
+		private void UpdateLineColor(Color color)
+		{
+			_currentPathView.SetColor(color);
 		}
 
 		#endregion
