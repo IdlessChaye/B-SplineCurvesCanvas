@@ -9,7 +9,7 @@ namespace Chaye
 	[RequireComponent(typeof(RectTransform))]
 	public class CanvasView : MonoBehaviour, IPointerDownHandler, IDragHandler, IEndDragHandler
 	{
-
+		[SerializeField] Toggle toggleIsUniform = default;
 		[SerializeField] InputField inputRank = default;
 		[SerializeField] Button buttonDelete = default;
 		[SerializeField] Button buttonClear = default;
@@ -51,6 +51,10 @@ namespace Chaye
 			toggleShowKnotPoint.onValueChanged.AddListener(callback);
 		}
 
+		public void OnClickToggleIsUniform(UnityAction<bool> callback)
+		{
+			toggleIsUniform.onValueChanged.AddListener(callback);
+		}
 
 
 		public void OnPointerDown(Action<Vector2> callback)

@@ -10,12 +10,23 @@ namespace Chaye
 	{
 		public bool IsDirty { get; set; }
 
+		public bool IsAutoAdjustRank { get; set; }
+
+		// is knot vector uniformed
+		private bool _isUniform = false;
+		public bool IsUniform {
+			get { return _isUniform; }
+			set
+			{
+				IsDirty = true;
+				_isUniform = value;
+			}
+		}
+
+		// rank of B-Spline Curves
 		private uint _rank = 0;
 		public uint Rank {
-			get
-			{
-				return _rank;
-			}
+			get { return _rank; }
 			set
 			{
 				IsDirty = true;
@@ -23,11 +34,12 @@ namespace Chaye
 			}
 		}
 
-		readonly Dictionary<Guid, ControlPoint> _controlPoints = new Dictionary<Guid, ControlPoint>();
-		readonly Dictionary<Guid, KnotPoint> _knotPoints = new Dictionary<Guid, KnotPoint>();
+		private readonly Dictionary<Guid, ControlPoint> _controlPoints = new Dictionary<Guid, ControlPoint>();
+		private readonly Dictionary<Guid, KnotPoint> _knotPoints = new Dictionary<Guid, KnotPoint>();
+		public Dictionary<Guid, KnotPoint> KnotPoints => _knotPoints;
 
+		public int ControlPointCount => _controlPoints.Count;
 		private int _controlIndex = 0;
-		private int ControlPointCount => _controlPoints.Count;
 
 		public uint ClampRank(uint rank)
 		{
@@ -51,6 +63,16 @@ namespace Chaye
 			IsDirty = true;
 			controlPoint.Index = _controlIndex++;
 			_controlPoints.Add(id, controlPoint);
+
+			if (IsAutoAdjustRank == true)
+			{
+				if (ControlPointCount == 1)
+					Rank = ClampRank(0);
+				else if (ControlPointCount == 2)
+					Rank = ClampRank(1);
+				else if (ControlPointCount == 3)
+					Rank = ClampRank(2);
+			}
 
 			UpdateKnotVector();
 		}
@@ -82,9 +104,11 @@ namespace Chaye
 			return previousId;
 		}
 
-		private void UpdateKnotVector()
+		public void UpdateKnotVector()
 		{
-			int knotCount = (int)Rank + ControlPointCount + 1;
+			int knotCount = 0;
+			if (ControlPointCount != 0)
+				knotCount = (int)Rank + ControlPointCount + 1;
 			CanvasController.Instance.UpdateKnotVector(knotCount);
 		}
 
@@ -174,6 +198,7 @@ namespace Chaye
 		public void Clear()
 		{
 			IsDirty = true;
+			Rank = 0;
 			_controlPoints.Clear();
 			_knotPoints.Clear();
 			_controlIndex = 0;

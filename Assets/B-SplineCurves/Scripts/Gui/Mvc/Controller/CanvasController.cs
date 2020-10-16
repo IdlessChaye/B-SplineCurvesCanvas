@@ -39,6 +39,7 @@ namespace Chaye
 			_instance = this;
 			BSplineCurves.Segments = 100;
 			_model = new PathModel();
+			_model.IsAutoAdjustRank = true;
 			_currentPathView = InstantiatePathView();
 		}
 
@@ -52,6 +53,13 @@ namespace Chaye
 					DeleteControlPointCallback();
 			});
 
+			_canvasView.OnClickToggleIsUniform((isOk) =>
+			{
+				_model.IsUniform = isOk;
+				_model.UpdateKnotVector();
+				_canvasView.ShowPoints(true);
+			});
+
 			_canvasView.OnChangedInputFieldRank((rankStr) =>
 			{
 				uint rank;
@@ -61,7 +69,7 @@ namespace Chaye
 				}
 			});
 
-			_canvasView.OnClickButtonDelete(() => DeleteControlPointCallback());
+			_canvasView.OnClickButtonDelete(DeleteControlPointCallback);
 
 			_canvasView.OnClickButtonClear(Clear);
 
@@ -164,25 +172,23 @@ namespace Chaye
 
 		public void UpdateKnotVector(int knotCount)
 		{
-			if (knotCount < 2)
-				return;
-
+			_model.ClearKnotVector();
 			_currentEditingKnotPoint = null;
 			ClearKnotPointViews();
-			_model.ClearKnotVector();
+			SetRankInputField(_model.Rank);
 
-			var knotVector = BSplineCurves.GenerateKnotVector(knotCount);
+			var knotVector = BSplineCurves.GenerateKnotVector(knotCount, _model.Rank, _model.IsUniform);
+			if (knotVector == null)
+				return;
 
-			Dictionary<Guid, KnotPoint> knotDict = new Dictionary<Guid, KnotPoint>();
 			foreach(var value in knotVector)
 			{
 				var id = Guid.NewGuid();
 				var knotPoint = CreateKnotPoint(value);
 				_model.AddKnotPoint(id, knotPoint);
-
-				knotDict.Add(id, knotPoint);
 			}
 
+			Dictionary<Guid, KnotPoint> knotDict = _model.KnotPoints;
 			foreach(var pair in knotDict)
 			{
 				var id = pair.Key;
@@ -251,6 +257,8 @@ namespace Chaye
 		#endregion
 
 
+		#region Private Methods
+
 		private void DeleteControlPointCallback()
 		{
 			if (IsControlPointSelected() == false)
@@ -274,10 +282,17 @@ namespace Chaye
 		private void ChangeRank(uint rank)
 		{
 			uint newRank = _model.ClampRank(rank);
-			_input.text = newRank.ToString();
 			_model.ChangeRank(newRank);
+			SetRankInputField(newRank);
 		}
 
+		private void SetRankInputField(uint rank)
+		{
+			var callback = _input.onValueChanged;
+			_input.onValueChanged = null;
+			_input.text = rank.ToString();
+			_input.onValueChanged = callback;
+		}
 
 		private bool IsControlPointSelected()
 		{
@@ -289,6 +304,7 @@ namespace Chaye
 			_model.Clear();
 			ClearKnotPointViews();
 			ClearControlPointViews();
+			_canvasView.ShowPoints(true);
 		}
 
 		private void ClearKnotPointViews()
@@ -327,5 +343,8 @@ namespace Chaye
 			var points = BSplineCurves.GetPoints(_model.GetPath());
 			_currentPathView.UpdatePath(points);
 		}
+
+		#endregion
+
 	}
 }

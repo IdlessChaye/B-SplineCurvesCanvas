@@ -6,7 +6,7 @@ namespace Chaye
 {
 	public static class BSplineCurves
 	{
-		public static int Segments = 100;
+		public static int Segments = 150;
 
 		private static Dictionary<PrimaryParam, float> _primaryFuncDict = new Dictionary<PrimaryParam, float>();
 
@@ -30,6 +30,8 @@ namespace Chaye
 				}
 			}
 
+			if (point == Vector3.zero)
+				point = new Vector3(10f, 10f); // trick
 			return point;
 		}
 
@@ -53,7 +55,8 @@ namespace Chaye
 				{
 					point += GetPrimaryFuncValue((uint)i, rank, u) * path.ControlPoints[i].Anchor;
 				}
-				points.Add(point);
+				if (point != Vector3.zero) // trick
+					points.Add(point);
 			}
 
 			return points;
@@ -104,20 +107,46 @@ namespace Chaye
 			return value;
 		}
 
-		public static List<float> GenerateKnotVector(int knotCount)
+		public static List<float> GenerateKnotVector(int knotCount, uint rank, bool isUniform)
 		{
 			if (knotCount < 2)
 				return null;
 
-			var result = new List<float>();
-			float stepLength = 1.0f / (knotCount - 1);
+			List<float> result = null;
 
-			for (int i = 0; i < knotCount; i++)
+			if (isUniform)
 			{
-				float value = stepLength * i;
-				result.Add(value);
+				result = new List<float>(knotCount);
+
+				float stepLength = 1.0f / (knotCount - 1);
+				for (int i = 0; i < knotCount; i++)
+				{
+					float value = stepLength * i;
+					result.Add(value);
+				}
 			}
-			
+			else
+			{
+				int multiplicity = (int)rank + 1;
+				int remainPointCount = knotCount - 2 * multiplicity;
+				if (remainPointCount >= 0)
+				{
+					result = new List<float>(knotCount);
+					
+					for (int i = 0; i < multiplicity; i++) 
+						result.Add(0);
+					float stepLength = 1f / (remainPointCount + 1);
+					for (int i = 1; i <= remainPointCount; i++)
+						result.Add(stepLength * i);
+					for (int i = 0; i < multiplicity; i++)
+						result.Add(1);
+				}
+				else
+				{
+					// do nothing.
+				}
+			}
+
 			return result;
 		}
 	}
